@@ -1,0 +1,57 @@
+{
+  "name": "coc-ai",
+  "version": "0.0.1",
+  "description": "My custom coc.nvim plugin",
+  "main": "lib/index.js",
+  "engines": {
+    "coc": "^0.0.80"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "coc-ai.ask",
+        "title": "Ask AI"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "properties": {
+        "ai.apiEndpoint": {
+          "type": "string",
+          "scope": "application",
+          "description": "API endpoint of the LLM provider"
+          ,"examples": [
+            "https://ai.openai.com/v1/chat/completions"
+          ]
+        },
+        "ai.authorizationKey": {
+          "type": "string",
+          "scope": "application",
+          "description": "Authorization key for LLM provider"
+        },
+        "ai.model": {
+          "type": "string",
+          "description": "Model of the LLM",
+          "examples": [
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-4"
+          ]
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -watch -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "coc.nvim": "0.0.83-next.9",
+    "typescript": "^5.5.4"
+  },
+  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
+}
