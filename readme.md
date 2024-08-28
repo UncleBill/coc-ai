@@ -7,20 +7,14 @@ coc-ai is a custom coc.nvim plugin that integrates AI-powered code assistance in
 ## Features
 
 - Ask AI for code-related questions and suggestions
-- Supports various AI models (e.g., GPT-4, GPT-4-mini)
+- Supports various AI models (e.g., GPT-4, GPT-4-mini, llama3)
 - Configurable API endpoint and authorization key
 - Code action integration for easy access
 
 ## Installation
 
-1. Make sure you have [coc.nvim](https://github.com/neoclide/coc.nvim) installed in your Neovim/Vim setup.
-2. Install the plugin using your preferred package manager. For example, with vim-plug:
-
-```viml
-Plug 'unclebill/coc-ai'
-```
-
-3. Run `:CocInstall coc-ai` in Neovim/Vim.
+1. Make sure you have [coc.nvim](https://github.com/neoclide/coc.nvim) installed.
+2. Run `:CocInstall coc-ai`
 
 ## Configuration
 
@@ -28,9 +22,9 @@ Add the following configurations to your `coc-settings.json`:
 
 ```json
 {
-  "ai.authorizationKey": "your-api-key-here",
+  "ai.authorizationKey": "<your-api-key-here>",
   "ai.model": "gpt-4o",
-  "ai.apiEndpoint": "your-api-endpoint-here"
+  "ai.apiEndpoint": "<your-api-endpoint-here>"
 }
 ```
 
@@ -56,3 +50,4 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+

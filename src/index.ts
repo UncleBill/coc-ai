@@ -1,12 +1,7 @@
-import {
-  commands,
-  ExtensionContext,
-  languages,
-  Uri,
-  window,
-  workspace,
-} from "coc.nvim";
+import { commands, ExtensionContext, languages, Uri, window, workspace } from "coc.nvim";
 import { askAI } from "./ai";
+import { llamaReader } from "./llama-reader";
+import { openaiReader } from "./openai-reader";
 
 export async function activate(context: ExtensionContext): Promise<void> {
   context.subscriptions.push(
@@ -25,14 +20,14 @@ export async function activate(context: ExtensionContext): Promise<void> {
       const model = config.get<string>("model") ?? "gpt-4o";
       const apiEndpoint = config.get<string>("apiEndpoint");
 
-      const title = `Ask AI: ${prompt}`;
+      const title = `Ask AI(${model}): ${prompt}`;
       const path = workspace.asRelativePath(Uri.parse(document.uri).fsPath);
       await window.withProgress(
         {
           title,
           cancellable: true,
         },
-        async () => {
+        async (progress, token) => {
           const response = await askAI({
             path,
             code,
@@ -41,9 +36,20 @@ export async function activate(context: ExtensionContext): Promise<void> {
             authorizationKey,
             model,
           });
+          if (!response.body) return;
+          let content = "";
+          const reader = model.startsWith("llama") ? llamaReader : openaiReader;
+          for await (let text of reader(response.body)) {
+            content += text;
+            progress.report({
+              message: `(${content.length})${content}`,
+            });
+          }
+          if (token.isCancellationRequested) return;
+
           const dialog = await window.showDialog({
             title,
-            content: response,
+            content,
             highlight: "markdown",
             buttons: [
               { index: 0, text: "[x]close" },
@@ -53,7 +59,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
               if (index === 0) {
                 dialog.dispose();
               } else if (index === 1) {
-                await workspace.nvim.call("setreg", ["+", response]);
+                await workspace.nvim.call("setreg", ["+", content]);
                 window.showMessage("Text copied to clipboard");
               }
             },

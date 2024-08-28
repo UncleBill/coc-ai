@@ -1,5 +1,3 @@
-import { ChatResponse } from "./types";
-
 interface AskAIOptions extends CreatePayloadOptions {
   code: string;
   path?: string;
@@ -15,6 +13,7 @@ export async function askAI({
   apiEndpoint,
   authorizationKey,
 }: AskAIOptions) {
+  // stream the response, return a readable stream
   const response = await fetch(apiEndpoint, {
     method: "POST",
     headers: {
@@ -30,8 +29,7 @@ export async function askAI({
       })
     ),
   });
-  const result = (await response.clone().json()) as ChatResponse;
-  return result.choices[0].message.content.trim();
+  return response;
 }
 
 interface CreatePayloadOptions {
@@ -42,6 +40,7 @@ interface CreatePayloadOptions {
 function createPayload({ model = "gpt-4o", prompt }: CreatePayloadOptions) {
   return {
     model,
+    stream: true,
     messages: [
       {
         role: "system",
@@ -77,7 +76,7 @@ function AIChatHistory() {
       },
       { role: "user", content: prompt },
     ],
-    max_tokens: 4096,
+    // max_tokens: 4096,
     n: 1,
     stop: null,
     temperature: 0.7,

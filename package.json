@@ -21,15 +21,13 @@
       "properties": {
         "ai.apiEndpoint": {
           "type": "string",
-          "scope": "application",
-          "description": "API endpoint of the LLM provider"
-          ,"examples": [
+          "description": "API endpoint of the LLM provider",
+          "examples": [
             "https://ai.openai.com/v1/chat/completions"
           ]
         },
         "ai.authorizationKey": {
           "type": "string",
-          "scope": "application",
           "description": "Authorization key for LLM provider"
         },
         "ai.model": {

@@ -1,4 +1,9 @@
 {
-  "cSpell.words": ["nvim", "visualmode", "setreg"]
+  "cSpell.words": [
+    "nvim",
+    "openai",
+    "setreg",
+    "visualmode"
+  ]
 }
 
