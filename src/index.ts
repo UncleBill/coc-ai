@@ -46,8 +46,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
             content: response,
             highlight: "markdown",
             buttons: [
-              { index: 0, text: "close" },
-              { index: 1, text: "copy and close" },
+              { index: 0, text: "[x]close" },
+              { index: 1, text: "[y]copy and close" },
             ],
             async callback(index) {
               if (index === 0) {
