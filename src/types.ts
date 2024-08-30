@@ -19,3 +19,8 @@ export interface ChatResponse {
   };
   system_fingerprint: string;
 }
+
+export interface Message {
+  role: "system" | "user" | "assistant";
+  content: string;
+}

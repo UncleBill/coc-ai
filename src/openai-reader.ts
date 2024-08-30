@@ -1,22 +1,30 @@
 import { type ReadableStream } from "stream/web";
 import { TextDecoder } from "node:util";
 
-export async function* openaiReader(stream: ReadableStream) {
+export async function* openaiReader(stream: ReadableStream, abort?: boolean) {
   const reader = stream.getReader();
   let content = "";
   const decoder = new TextDecoder();
   const PREFIX = "data: ";
   const PREFIX_OFFSET = PREFIX.length;
   var slice_offset = -1;
-  var json = "";
+  var raw = "";
   while (true) {
+    if (abort) return;
     const { done, value } = await reader?.read();
-    content += done ? "" : decoder.decode(value);
+    const decoded = decoder.decode(value);
+    if (decoded === "data: [DONE]") break;
+    if (decoded && !decoded.startsWith("data:")) continue;
+    content += done ? "" : decoded;
     do {
       if (slice_offset !== -1 && content.length) {
-        json = content.slice(PREFIX_OFFSET, slice_offset);
-        if (json.trim() === "[DONE]") break;
-        const text = JSON.parse(json).choices[0].delta.content;
+        raw = content.slice(PREFIX_OFFSET, slice_offset);
+        if (raw.trim() === "[DONE]") break;
+        const json = JSON.parse(raw);
+        if (json.error) {
+          throw new Error(json.error.message);
+        }
+        const text = json.choices[0].delta.content;
         content = content.slice(slice_offset);
         if (text) yield text;
       }

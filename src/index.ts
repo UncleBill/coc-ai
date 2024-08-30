@@ -1,7 +1,6 @@
 import { commands, ExtensionContext, languages, Uri, window, workspace } from "coc.nvim";
-import { askAI } from "./ai";
-import { llamaReader } from "./llama-reader";
-import { openaiReader } from "./openai-reader";
+import { ask } from "./main";
+import { Message } from "./types";
 
 export async function activate(context: ExtensionContext): Promise<void> {
   context.subscriptions.push(
@@ -22,50 +21,19 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
       const title = `Ask AI(${model}): ${prompt}`;
       const path = workspace.asRelativePath(Uri.parse(document.uri).fsPath);
-      await window.withProgress(
+      const messages: Message[] = [
         {
-          title,
-          cancellable: true,
+          role: "user",
+          content: "```" + `${path || ""}\n${code}` + "```\n\n" + prompt,
         },
-        async (progress, token) => {
-          const response = await askAI({
-            path,
-            code,
-            prompt,
-            apiEndpoint,
-            authorizationKey,
-            model,
-          });
-          if (!response.body) return;
-          let content = "";
-          const reader = model.startsWith("llama") ? llamaReader : openaiReader;
-          for await (let text of reader(response.body)) {
-            content += text;
-            progress.report({
-              message: `(${content.length})${content}`,
-            });
-          }
-          if (token.isCancellationRequested) return;
-
-          const dialog = await window.showDialog({
-            title,
-            content,
-            highlight: "markdown",
-            buttons: [
-              { index: 0, text: "[x]close" },
-              { index: 1, text: "[y]copy and close" },
-            ],
-            async callback(index) {
-              if (index === 0) {
-                dialog.dispose();
-              } else if (index === 1) {
-                await workspace.nvim.call("setreg", ["+", content]);
-                window.showMessage("Text copied to clipboard");
-              }
-            },
-          });
-        }
-      );
+      ];
+      await ask({
+        title,
+        model,
+        messages,
+        apiEndpoint,
+        authorizationKey,
+      });
     })
   );
 

@@ -1,43 +1,38 @@
-interface AskAIOptions extends CreatePayloadOptions {
-  code: string;
-  path?: string;
+import { Message } from "./types";
+
+export interface AskAIOptions extends CreatePayloadOptions {
   apiEndpoint?: string;
   authorizationKey?: string;
 }
 
-export async function askAI({
-  code,
-  path,
-  model,
-  prompt,
-  apiEndpoint,
-  authorizationKey,
-}: AskAIOptions) {
+export async function askAI({ model, messages, apiEndpoint, authorizationKey }: AskAIOptions) {
   // stream the response, return a readable stream
   const response = await fetch(apiEndpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: authorizationKey
-        ? `Bearer ${authorizationKey}`
-        : undefined,
+      Authorization: authorizationKey ? `Bearer ${authorizationKey}` : undefined,
     },
     body: JSON.stringify(
       createPayload({
         model,
-        prompt: "```" + `${path || ""}\n${code}` + "```\n\n" + prompt,
+        messages,
       })
     ),
   });
+  if (!response.ok) {
+    console.log(`Failed to fetch ${apiEndpoint}`);
+    return null;
+  }
   return response;
 }
 
 interface CreatePayloadOptions {
-  prompt: string;
   model?: string;
+  messages: Array<Message>;
 }
 
-function createPayload({ model = "gpt-4o", prompt }: CreatePayloadOptions) {
+function createPayload({ model = "gpt-4o", messages }: CreatePayloadOptions) {
   return {
     model,
     stream: true,
@@ -74,7 +69,7 @@ function AIChatHistory() {
 }
 `,
       },
-      { role: "user", content: prompt },
+      ...messages,
     ],
     // max_tokens: 4096,
     n: 1,
